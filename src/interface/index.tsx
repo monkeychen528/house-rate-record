@@ -3,3 +3,9 @@ export interface IAllPriceData {
     price: string
     date: string
 }
+
+export interface IRate {
+    id: number,
+    date: string,
+    ratecol: number
+}

@@ -29,7 +29,7 @@ const dealData = (arr: any[]) => {
 
     console.log(arr, 'arr')
     arr.forEach(([region, regionArr]: [string, IAllPriceData[]]) => {
-        const data: { x: number, y: Date, r: number }[] = []
+        const data: { x: Date, y: number, r: number }[] = []
         let priceMap = new Map()
         regionArr.forEach((val) => {
             // const getRegionIndex = val.address.match(/^.*市.*區/g)
@@ -37,24 +37,24 @@ const dealData = (arr: any[]) => {
             let formatPrice = parseInt(val.price.slice(0, -2).replaceAll(',', ''))
             if (priceMap.has(val.date)) {
                 let price = priceMap.get(val.date)
-                priceMap.set(val.date, Math.floor((price + formatPrice)/2))
+                priceMap.set(val.date, Math.floor((price + formatPrice) / 2))
             } else {
                 priceMap.set(val.date, formatPrice)
             }
-            
+
             // return {
             //     x: parseInt(val.price.slice(0, -2).replaceAll(',', '')),
             //     y: formatDate,
             // }
         })
-        priceMap.forEach((value,key)=>{
+        priceMap.forEach((value, key) => {
             const year = parseInt(key.slice(0, 3)) + 1911
             const month = key.slice(-2)
             const formatDate = new Date(year, parseInt(month));
             // time = formatDate
             const obj = {
-                x: Math.floor(value * 1000) / 1000,
-                y: formatDate,
+                x: formatDate,
+                y: Math.floor(value * 1000) / 1000,
                 r: 5
             }
             data.push(obj)
@@ -106,22 +106,7 @@ const dealData = (arr: any[]) => {
 
     //     }
     // })
-    const dataset = {
-        datasets: [{
-            label: 'First Dataset',
-            data: [{
-                x: 20,
-                y: 30,
-                r: 15
-            }, {
-                x: 40,
-                y: 10,
-                r: 10
-            }],
-            backgroundColor: 'rgb(255, 99, 132)'
-        }]
-    }
-    return dataset
+
 };
 const dealOptions = () => {
     // type: 'time',
@@ -136,7 +121,7 @@ const dealOptions = () => {
     // })
     return {
         scales: {
-            y: {
+            x: {
                 type: "time",
                 time: {
                     unit: 'month',
@@ -149,7 +134,7 @@ const dealOptions = () => {
                         // console.log(value, 'asdas')
                         value = value ? new Date(value) : new Date()
                         const formatTime = value
-                        return formatTime.getUTCFullYear() + '/' + (formatTime.getMonth() + 1);
+                        return formatTime.getFullYear() + '/' + (formatTime.getMonth() + 1);
                     },
 
                 },

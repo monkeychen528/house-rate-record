@@ -7,15 +7,26 @@ import { DropDown } from '@/components/DropDown'
 import styles from '@/styles/Home.module.css'
 import { T_Data } from './api/hello'
 import { ICheckboxCommon } from '@/components/Checkbox'
-import { IAllPriceData } from '@/interface'
+import { IAllPriceData, IRate } from '@/interface'
 import { ScatterGraph } from '@/components/Chart/Scatter';
 import { BubbleGraph } from '@/components/Chart/Bubble'
+import { MixedGraph } from '@/components/Chart/Mixed'
 import { Checkbox, MultiCheckbox } from "@/components/Checkbox"
-
 
 interface IRegion {
   data: T_Data[]
 }
+
+function limitDate(date: IRate[], limit?: any) { //先擷取1年的
+  const returnDate = date.filter((val) => {
+    const now = new Date()
+    const year = now.getFullYear()
+    if (new Date(val.date).getFullYear() >= 2022) return val
+  })
+  return returnDate
+}
+
+const componentType = ['mixed', 'bubble', 'scatter']
 
 export default function Home() {
   const [citys, setCitys] = useState<string[]>([])
@@ -26,7 +37,10 @@ export default function Home() {
   const [checkboxDataMap, setCheckboxDataMap] = useState(new Map())
   const [allPriceData, setAllPriceData] = useState<IAllPriceData[]>([])
   const [selectPriceData, setSelectPriceData] = useState<IAllPriceData[]>([])
-
+  //利率
+  const [rate, setRate] = useState<IRate[]>([])
+  // which component
+  const [type, setType] = useState('mixed')
   const handleChangeCity = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectCity(e.target.value)
   }
@@ -48,6 +62,11 @@ export default function Home() {
     setCheckboxDataMap((prev) => new Map([...prev, ...newMap]))
   }
 
+  // choose which component to show
+  const handleComponentType = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setType(e.target.value)
+  }
+
   // mock region data
   useEffect(() => {
     (async () => {
@@ -66,7 +85,10 @@ export default function Home() {
     (async () => {
       const fetchData = await fetch('http://localhost:3050/getPrice')
       const data = await fetchData.json()
+      const rateData = await fetch('http://localhost:3050/allRate')
+      const rate = await rateData.json()
       setAllPriceData(data.data)
+      setRate(rate.data)
     })()
   }, [])
   // filter region
@@ -106,6 +128,10 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <MultiCheckbox dataArr={checkboxRegion} handleCheckbox={handelCheckboxMap} />
+
+
+        <DropDown value={componentType} defaultSelect={type} handleCallback={handleComponentType} />
+
         <div>
           {
             citys.length > 0 && <DropDown value={citys} defaultSelect={selectCity} handleCallback={handleChangeCity} />
@@ -116,9 +142,9 @@ export default function Home() {
             })
           }
         </div>
-
-        {/* <ScatterGraph data={selectPriceData} /> */}
-        <BubbleGraph data={Array.from(checkboxDataMap)} />
+        {type === "scatter" && <ScatterGraph data={selectPriceData} />}
+        {type === "bubble" && <BubbleGraph data={Array.from(checkboxDataMap)} />}
+        {type === "mixed" && <MixedGraph data={Array.from(checkboxDataMap)} rate={limitDate(rate)} />}
       </main>
     </>
   )
