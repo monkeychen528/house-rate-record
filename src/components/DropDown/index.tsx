@@ -1,7 +1,13 @@
 import React, { useState } from "react"
 
+interface IvalueArr {
+    value: string | number
+    key: string | number
+    name: string | number
+}
+
 interface ISelect {
-    value: string | string[] | ObjectConstructor[]
+    value: string | string[] | IvalueArr[]
     defaultSelect?: string
     handleCallback?: (e: React.ChangeEvent<HTMLSelectElement>) => void
 }
@@ -10,7 +16,6 @@ const DropDown: React.FC<ISelect> = ({ value, defaultSelect, handleCallback }) =
     const [selected, setSelected] = useState(defaultSelect)
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelected(e.target.value)
-        console.log('fireddd')
         if (typeof handleCallback === 'function') handleCallback(e)
     }
     return (
@@ -19,7 +24,7 @@ const DropDown: React.FC<ISelect> = ({ value, defaultSelect, handleCallback }) =
 
                 {typeof value === 'string' ? <option value={value}>{value}</option> : null}
                 {value instanceof Array ? value.map((val: any) => {
-                    return <option value={val} key={val}>{val}</option>
+                    return <option value={val?.value || val} key={val?.key || val}>{val?.name || val}</option>
 
                 }) : null}
             </select>

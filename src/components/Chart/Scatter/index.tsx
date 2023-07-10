@@ -5,8 +5,10 @@ import {
   LineElement,
   Tooltip,
   Legend,
-  TimeScale
+  TimeScale,
+  ChartOptions
 } from 'chart.js';
+
 import { Scatter } from 'react-chartjs-2';
 import { IAllPriceData } from '@/interface'
 import "chartjs-adapter-date-fns"
@@ -24,7 +26,7 @@ function chartData(data: IAllPriceData[]) {
     }),
     datasets: [
       {
-        label: 'A dataset',
+        label: '成交分布',
         data: data.map((val) => {
           const year = parseInt(val.date.slice(0, 3)) + 1911
           const month = val.date.slice(-2)
@@ -42,7 +44,8 @@ function chartData(data: IAllPriceData[]) {
   };
   return returnData
 }
-const dealOptions = (datas: IAllPriceData[]) => {
+
+const dealOptions = (datas: IAllPriceData[]): ChartOptions<"scatter"> => {
   // type: 'time',
   let [minMonth, maxMonth] = [new Date().getTime(), new Date().getTime()]
   datas.forEach((data) => {
@@ -61,40 +64,27 @@ const dealOptions = (datas: IAllPriceData[]) => {
           unit: 'month',
           parser: 'yyyy/MM',
         },
-        // adapters:{
-        //   date:{
-        //     locale: "zh-tw"
-        //   }
-        // },
         ticks: {
-          type: "time",
           callback: function (value: any) {
-            // do something with value
-            // console.log(value, 'asdas')
             value = value ? new Date(value) : new Date()
             const formatTime = value
             return formatTime.getUTCFullYear() + '/' + (formatTime.getMonth() + 1);
           },
 
         },
-        // beginAtZero: true,
-        min: (option: any) => {
+        min: (() => {
           let year = new Date(minMonth).getFullYear()
           let month = new Date(minMonth).getMonth() - 1
 
-          return new Date(year, month)
-        },
-        // suggestedMin:(option:any)=>{
-        //   console.log(option,'what is option')
-        //   return new Date(option.scale)
-        // }
+          return new Date(year, month).getTime()
+        })(),
       },
     }
   }
 };
 
 
-export function ScatterGraph({ data } : { data: IAllPriceData[]}) {
+export function ScatterGraph({ data }: { data: IAllPriceData[] }) {
   return (
     <Scatter data={chartData(data)} options={dealOptions(data)} />
   )

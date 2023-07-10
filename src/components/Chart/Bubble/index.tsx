@@ -6,17 +6,12 @@ import {
     PointElement,
     Tooltip,
     Legend,
-    TimeScale
+    TimeScale,
+    ChartOptions
 } from 'chart.js';
 ChartJS.register(LinearScale, PointElement, Tooltip, Legend, TimeScale);
 import "chartjs-adapter-date-fns"
 
-
-interface IoptionConfig {
-    label?: string
-    data: any[]
-    backgroundColor?: string
-}
 interface Test {
     label?: string
     data: any[]
@@ -27,7 +22,6 @@ const dealData = (arr: any[]) => {
     const monthMap = new Map()
     const test: Test[] = []
 
-    console.log(arr, 'arr')
     arr.forEach(([region, regionArr]: [string, IAllPriceData[]]) => {
         const data: { x: Date, y: number, r: number }[] = []
         let priceMap = new Map()
@@ -42,10 +36,6 @@ const dealData = (arr: any[]) => {
                 priceMap.set(val.date, formatPrice)
             }
 
-            // return {
-            //     x: parseInt(val.price.slice(0, -2).replaceAll(',', '')),
-            //     y: formatDate,
-            // }
         })
         priceMap.forEach((value, key) => {
             const year = parseInt(key.slice(0, 3)) + 1911
@@ -63,62 +53,14 @@ const dealData = (arr: any[]) => {
         test.push({ label: region, data: data, backgroundColor: `rgb(255, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})` })
     })
 
-    let config: IoptionConfig[] = []
-    let configLabel = ''
-    // for (var [key, value] of monthMap) {
-    //     const year = parseInt(value.date.slice(0, 3)) + 1911
-    //     const month = value.date.slice(-2)
-    //     const formatDate = new Date(year, parseInt(month));
-    //     // time = formatDate
-    //     console.log(monthMap, 'monthMap')
-    //     console.log(key, 'key')
-    //     const obj = {
-    //         x: Math.floor(value.price * 1000) / 1000,
-    //         y: formatDate,
-    //         r: 5
-    //     }
-    //     data.push(obj)
-    //     if (configLabel !== key.slice(0, 3)) {
-    //         configLabel = key.slice(0, 3)
-    //         const datasetConfig = {
-    //             label: configLabel,
-    //             data: data,
-    //             backgroundColor: `rgb(255, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`
-    //         }
-    //         config.push(datasetConfig)
-    //     }
-    // }
-    console.log(test, 'test data')
+
     return {
         datasets: test
     }
-    // const data = map((val) => {
-    //     const year = parseInt(val.date.slice(0, 3)) + 1911
-    //     const month = val.date.slice(-2)
-    //     const formatDate = new Date(year, parseInt(month));
-
-    //     return {
-    //         x: parseInt(val.price.slice(0, -2).replaceAll(',', '')),
-    //         y: formatDate,
-    //     }
-    //     return {
-    //         x: val.price
-
-    //     }
-    // })
 
 };
-const dealOptions = () => {
-    // type: 'time',
-    // let [minMonth, maxMonth] = [new Date().getTime(), new Date().getTime()]
-    // datas.forEach((data) => {
-    //     const year = parseInt(data.date.slice(0, 3)) + 1911
-    //     const month = data.date.slice(-2)
-    //     const formatDate = new Date(year, parseInt(month));
-    //     minMonth = Math.min(formatDate.getTime(), minMonth, maxMonth)
+const dealOptions = (): ChartOptions<"bubble"> => {
 
-    //     maxMonth = Math.max(formatDate.getTime(), maxMonth)
-    // })
     return {
         scales: {
             x: {
@@ -128,23 +70,17 @@ const dealOptions = () => {
                     parser: 'yyyy/MM',
                 },
                 ticks: {
-                    type: "time",
                     callback: function (value: any) {
-                        // do something with value
-                        // console.log(value, 'asdas')
                         value = value ? new Date(value) : new Date()
                         const formatTime = value
                         return formatTime.getFullYear() + '/' + (formatTime.getMonth() + 1);
                     },
-
                 },
             },
         }
     }
 };
-export interface IBubbleGraph {
-    data: any
-}
+
 const BubbleGraph = ({ data }: { data: any[] }) => {
     return (
         <>

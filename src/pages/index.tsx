@@ -26,7 +26,23 @@ function limitDate(date: IRate[], limit?: any) { //先擷取1年的
   return returnDate
 }
 
-const componentType = ['mixed', 'bubble', 'scatter']
+const componentType = [
+  {
+    value: 'mixed',
+    name: "混合圖",
+    key: 'mixed'
+  },
+  {
+    value: 'bubble',
+    name: "泡泡圖",
+    key: 'bubble'
+  },
+  {
+    value: 'scatter',
+    name: "散佈圖",
+    key: 'scatter'
+  },
+]
 
 export default function Home() {
   const [citys, setCitys] = useState<string[]>([])
@@ -127,12 +143,12 @@ export default function Home() {
         <Script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></Script>
       </Head>
       <main className={styles.main}>
-        <MultiCheckbox dataArr={checkboxRegion} handleCheckbox={handelCheckboxMap} />
 
 
+        <p>選擇顯示方式</p>
         <DropDown value={componentType} defaultSelect={type} handleCallback={handleComponentType} />
 
-        <div>
+        {type === "scatter" && <div>
           {
             citys.length > 0 && <DropDown value={citys} defaultSelect={selectCity} handleCallback={handleChangeCity} />
           }
@@ -141,8 +157,14 @@ export default function Home() {
               return selectCity === val.city && <DropDown value={val.region} handleCallback={handleChangeRegion} />
             })
           }
-        </div>
-        {type === "scatter" && <ScatterGraph data={selectPriceData} />}
+          <ScatterGraph data={selectPriceData} />
+        </div>}
+        {type !== "scatter" &&
+          <>
+            <p>請選擇複數個縣市</p>
+            <MultiCheckbox dataArr={checkboxRegion} handleCheckbox={handelCheckboxMap} />
+          </>
+        }
         {type === "bubble" && <BubbleGraph data={Array.from(checkboxDataMap)} />}
         {type === "mixed" && <MixedGraph data={Array.from(checkboxDataMap)} rate={limitDate(rate)} />}
       </main>

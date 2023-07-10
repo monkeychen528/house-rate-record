@@ -8,15 +8,17 @@ import {
     PointElement,
     Tooltip,
     Legend,
-    TimeScale
+    TimeScale,
+    ChartDataset,
+    ChartOptions 
 } from 'chart.js';
 ChartJS.register(LinearScale, PointElement, Tooltip, Legend, TimeScale, LineElement, LineController, CategoryScale);
 import { Chart } from 'react-chartjs-2';
 import "chartjs-adapter-date-fns"
 import { IRate } from '@/interface'
 
-
-interface Idataset {
+type graphType = "scatter" | "line"
+type Idataset = {
     label?: string
     data: any[]
     backgroundColor?: string
@@ -24,12 +26,14 @@ interface Idataset {
     yAxisID?: string
     stepped?: boolean | string,
     borderColor?: string
-}
+} & ChartDataset<graphType>
+
 const dealData = (arr: any[], rateArr: IRate[]) => {
     const dataset: Idataset[] = []
 
     arr.forEach(([region, regionArr]: [string, IAllPriceData[]]) => {
-        const data: { x: Date, y: number, r: number }[] = []
+        const data: any[] = []
+        // { x?: Date, y?: number, r?: number }
         let priceMap = new Map()
         regionArr.forEach((val) => {
             let formatPrice = parseInt(val.price.slice(0, -2).replaceAll(',', ''))
@@ -54,20 +58,20 @@ const dealData = (arr: any[], rateArr: IRate[]) => {
             data.push(obj)
         })
         const randomColor = () => 10 * Math.random()
-        dataset.push({ label: region, data: data, backgroundColor: `rgb(${Math.floor(randomColor() * 255 / 10)}, ${Math.floor(randomColor() * 255 / 10)}, ${Math.floor(randomColor() * 255 / 10)})` })
+        dataset.push({ type: "scatter" as const, label: region, data: data, backgroundColor: `rgb(${Math.floor(randomColor() * 255 / 10)}, ${Math.floor(randomColor() * 255 / 10)}, ${Math.floor(randomColor() * 255 / 10)})` })
     })
     if (rateArr.length > 0) {
         const rateDataSet = rateArr.map((val) => {
-            return { x: new Date(val.date), y: val.ratecol }
+            return { x: new Date(val.date).getTime(), y: val.ratecol }
         })
         const checkRateFinalDate = rateDataSet[0]
-        console.log(rateDataSet, 'rateDataSet')
-        if (checkRateFinalDate.x < new Date()) rateDataSet.unshift({ x: new Date(), y: checkRateFinalDate.y })
+        if (checkRateFinalDate.x < new Date().getTime()) rateDataSet.unshift({ x: new Date().getTime(), y: checkRateFinalDate.y })
+
         dataset.push({
             label: '利率',
             data: rateDataSet,
             type: "line" as const,
-            stepped: 'after',
+            // stepped: 'after', //利率劃線方式
             borderColor: 'black',
             yAxisID: "rate"
         })
@@ -78,36 +82,36 @@ const dealData = (arr: any[], rateArr: IRate[]) => {
     }
 
 };
-const dealOptions = () => {
-    return {
-        scales: {
-            x: {
-                type: "time",
-                time: {
-                    unit: 'month',
-                    parser: 'yyyy/MM',
-                },
-                ticks: {
-                    type: "time",
-                    callback: function (value: any) {
-                        // do something with value
-                        // console.log(value, 'asdas')
-                        value = value ? new Date(value) : new Date()
-                        const formatTime = value
-                        return formatTime.getFullYear() + '/' + (formatTime.getMonth() + 1);
-                    },
+const dealOptions: ChartOptions<'scatter'
+    | 'line'> = {
+    scales: {
+        x: {
+            type: "time",
+            time: {
+                unit: 'month',
+                parser: 'yyyy/MM',
+            },
+            ticks: {
+                // type: "time" as const,
+                callback: function (value: any) {
+                    value = value ? new Date(value) : new Date()
+                    const formatTime = value
+                    return formatTime.getFullYear() + '/' + (formatTime.getMonth() + 1);
                 },
             },
-
+        },
+        y: {
+            position: 'left',
+            display: true,
         },
         rate: {
 
-            display: true,
             position: 'right',
-
+            display: true,
         }
-    }
-};
+    },
+}
+
 
 const MixedGraph = ({ data, rate }: { data: any[], rate: IRate[] }) => {
     return (
@@ -116,7 +120,7 @@ const MixedGraph = ({ data, rate }: { data: any[], rate: IRate[] }) => {
                 data.length > 0 &&
                 <Chart
                     type="scatter"
-                    options={dealOptions()}
+                    options={dealOptions}
                     data={dealData(data, rate)}
                 >
                 </Chart>
