@@ -18,15 +18,7 @@ import "chartjs-adapter-date-fns"
 import { IRate } from '@/interface'
 
 type graphType = "scatter" | "line"
-type Idataset = {
-    label?: string
-    data: any[]
-    backgroundColor?: string
-    type?: string
-    yAxisID?: string
-    stepped?: boolean | string,
-    borderColor?: string
-} & ChartDataset<graphType>
+type Idataset = ChartDataset<graphType>
 
 const dealData = (arr: any[], rateArr: IRate[]) => {
     const dataset: Idataset[] = []
