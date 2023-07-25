@@ -30,13 +30,14 @@ const dealData = (arr: any[]) => {
             // const getRegion = getRegionIndex![0].match(/市.*區/g)![0].slice(1)
             let formatPrice = parseInt(val.price.slice(0, -2).replaceAll(',', ''))
             if (priceMap.has(val.date)) {
-                let price = priceMap.get(val.date)
-                priceMap.set(val.date, Math.floor((price + formatPrice) / 2))
+                let obj = priceMap.get(val.date)
+                priceMap.set(val.date, { price: Math.floor((obj.price + formatPrice) / 2), count: obj.count += 1 })
             } else {
-                priceMap.set(val.date, formatPrice)
+                priceMap.set(val.date, { price: formatPrice, count: 0 })
             }
 
         })
+
         priceMap.forEach((value, key) => {
             const year = parseInt(key.slice(0, 3)) + 1911
             const month = key.slice(-2)
@@ -44,8 +45,8 @@ const dealData = (arr: any[]) => {
             // time = formatDate
             const obj = {
                 x: formatDate,
-                y: Math.floor(value * 1000) / 1000,
-                r: 5
+                y: Math.floor(value.price * 1000) / 1000,
+                r: value.count / 10 > 20 ? 20 : value.count /10
             }
             data.push(obj)
         })
@@ -84,6 +85,8 @@ const dealOptions = (): ChartOptions<"bubble"> => {
 const BubbleGraph = ({ data }: { data: any[] }) => {
     return (
         <>
+        <small>計算方式:金額為價格的中位數<br/>
+        圓的大小:當月總數量 / 10</small>
             {
                 data.length > 0 &&
                 <Bubble
