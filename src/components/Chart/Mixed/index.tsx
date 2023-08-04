@@ -10,41 +10,33 @@ import {
     Legend,
     TimeScale,
     ChartDataset,
-    ChartOptions 
+    ChartData,
+    ChartOptions
 } from 'chart.js';
 ChartJS.register(LinearScale, PointElement, Tooltip, Legend, TimeScale, LineElement, LineController, CategoryScale);
 import { Chart } from 'react-chartjs-2';
 import "chartjs-adapter-date-fns"
 import { IRate } from '@/interface'
+import { formatData, stringDateToDate } from '../utils/format'
 
-type graphType = "scatter" | "line"
-type Idataset = ChartDataset<graphType>
+
+type graphType = "scatter" |"line"
+
+type ScatterType = ChartDataset<graphType,{ x: Date, y: number, r?: number }[]>
 
 const dealData = (arr: any[], rateArr: IRate[]) => {
-    const dataset: Idataset[] = []
+    const dataset: ScatterType[] = []
 
     arr.forEach(([region, regionArr]: [string, IAllPriceData[]]) => {
-        const data: any[] = []
-        // { x?: Date, y?: number, r?: number }
-        let priceMap = new Map()
-        regionArr.forEach((val) => {
-            let formatPrice = parseInt(val.price.slice(0, -2).replaceAll(',', ''))
-            if (priceMap.has(val.date)) {
-                let price = priceMap.get(val.date)
-                priceMap.set(val.date, Math.floor((price + formatPrice) / 2))
-            } else {
-                priceMap.set(val.date, formatPrice)
-            }
+        const data: { x: Date, y: number, r: number }[] = []
+        let priceMap = formatData(regionArr)
 
-        })
         priceMap.forEach((value, key) => {
-            const year = parseInt(key.slice(0, 3)) + 1911
-            const month = key.slice(-2)
-            const formatDate = new Date(year, parseInt(month));
+            const formatDate = stringDateToDate(key)
             // time = formatDate
             const obj = {
                 x: formatDate,
-                y: Math.floor(value * 1000) / 1000,
+                y: Math.floor(parseInt(value.price) * 1000) / 1000,
                 r: 5
             }
             data.push(obj)
@@ -52,12 +44,12 @@ const dealData = (arr: any[], rateArr: IRate[]) => {
         const randomColor = () => 10 * Math.random()
         dataset.push({ type: "scatter" as const, label: region, data: data, backgroundColor: `rgb(${Math.floor(randomColor() * 255 / 10)}, ${Math.floor(randomColor() * 255 / 10)}, ${Math.floor(randomColor() * 255 / 10)})` })
     })
-    if (rateArr.length > 0) {
+    if (rateArr.length > 0) { //check rate graph whether show
         const rateDataSet = rateArr.map((val) => {
-            return { x: new Date(val.date).getTime(), y: val.ratecol }
+            return { x: new Date(val.date), y: val.ratecol }
         })
         const checkRateFinalDate = rateDataSet[0]
-        if (checkRateFinalDate.x < new Date().getTime()) rateDataSet.unshift({ x: new Date().getTime(), y: checkRateFinalDate.y })
+        if (checkRateFinalDate.x.getTime() < new Date().getTime()) rateDataSet.unshift({ x: new Date(), y: checkRateFinalDate.y })
 
         dataset.push({
             label: '利率',

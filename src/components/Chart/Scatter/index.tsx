@@ -19,8 +19,8 @@ ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend, TimeSc
 function chartData(data: IAllPriceData[]) {
   const returnData = {
     labels: data.map((val) => {
-      const year = parseInt(val.date.slice(0, 3)) + 1911
-      const month = val.date.slice(-2)
+      const year = parseInt(val.times.slice(0, 3)) + 1911
+      const month = val.times.slice(-2)
       const formatDate = new Date(year, parseInt(month));
       return formatDate.getFullYear() + '/' + (formatDate.getMonth() + 1)
     }),
@@ -28,8 +28,8 @@ function chartData(data: IAllPriceData[]) {
       {
         label: '成交分布',
         data: data.map((val) => {
-          const year = parseInt(val.date.slice(0, 3)) + 1911
-          const month = val.date.slice(-2)
+          const year = parseInt(val.times.slice(0, 3)) + 1911
+          const month = val.times.slice(-2)
           const formatDate = new Date(year, parseInt(month));
 
           return {
@@ -49,8 +49,8 @@ const dealOptions = (datas: IAllPriceData[]): ChartOptions<"scatter"> => {
   // type: 'time',
   let [minMonth, maxMonth] = [new Date().getTime(), new Date().getTime()]
   datas.forEach((data) => {
-    const year = parseInt(data.date.slice(0, 3)) + 1911
-    const month = data.date.slice(-2)
+    const year = parseInt(data.times.slice(0, 3)) + 1911
+    const month = data.times.slice(-2)
     const formatDate = new Date(year, parseInt(month));
     minMonth = Math.min(formatDate.getTime(), minMonth, maxMonth)
 
