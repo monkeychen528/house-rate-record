@@ -36,8 +36,8 @@ const DropDown: React.FC<ISelect> = ({ value, defaultSelect, handleCallback }) =
 const Selects: React.FC<ISelect> = ({ value }) => {
     return (
         <>
-            {typeof value === 'string' ? <option value={value}>{value}</option> : value.map((val: any) => {
-                return <option value={val.value}>{val.value}</option>
+            {typeof value === 'string' ? <option value={value} key={value}>{value}</option> : value.map((val: any) => {
+                return <option value={val.value} key={val.value}>{val.value}</option>
 
             })}
         </>
