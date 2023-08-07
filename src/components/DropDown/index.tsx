@@ -22,7 +22,7 @@ const DropDown: React.FC<ISelect> = ({ value, defaultSelect, handleCallback }) =
         <>
             <select value={selected} onChange={handleChange}>
 
-                {typeof value === 'string' ? <option value={value}>{value}</option> : null}
+                {typeof value === 'string' ? <option value={value} key={value}>{value}</option> : null}
                 {value instanceof Array ? value.map((val: any) => {
                     return <option value={val?.value || val} key={val?.key || val}>{val?.name || val}</option>
 

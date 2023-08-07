@@ -148,11 +148,11 @@ export default function Home() {
 
         {type === "scatter" && <div>
           {
-            citys.length > 0 && <DropDown value={citys} defaultSelect={selectCity} handleCallback={handleChangeCity} />
+            citys.length > 0 && <DropDown value={citys} key={'citys'} defaultSelect={selectCity} handleCallback={handleChangeCity} />
           }
           {
             region && region.data && region?.data.map((val) => {
-              return selectCity === val.city && <DropDown value={val.region} handleCallback={handleChangeRegion} />
+              return selectCity === val.city && <DropDown key={"reions"} value={val.region} handleCallback={handleChangeRegion} />
             })
           }
           <ScatterGraph data={selectPriceData} />

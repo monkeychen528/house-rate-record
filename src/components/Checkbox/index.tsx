@@ -48,7 +48,7 @@ const MultiCheckbox = ({ dataArr, handleCheckbox, checkedData }: IMultiCheckbox)
             })
             setValue(checkedCity)
         }
-    }, [])
+    }, [checkedData])
 
     return (
         <>
