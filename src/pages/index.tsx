@@ -99,12 +99,22 @@ export default function Home() {
   //get data 
   useEffect(() => {
     (async () => {
-      const fetchData = await fetch('http://localhost:3050/getPrice')
+      
+      // const fetchData = await fetch('http://localhost:3050/getPrice')
+      const fetchData = await fetch(`${process.env.NEXT_PUBLIC_KV_REST_API_URL}/get/price`, {
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_KV_REST_API_TOKEN}`,
+        },
+      })
       const data = await fetchData.json()
-      const rateData = await fetch('http://localhost:3050/allRate')
+      
+      const parseData = JSON.parse(data.result)
+      
+      const rateData = await fetch(process.env.NEXT_PUBLIC_EDGE_CONFIG)
+      // const rateData = await fetch('http://localhost:3050/allRate')
       const rate = await rateData.json()
-      setAllPriceData(data.data)
-      setRate(rate.data)
+      setAllPriceData(parseData.data)
+      setRate(rate.items.data)
     })()
   }, [])
   // filter region
@@ -125,7 +135,7 @@ export default function Home() {
           name: val,
           child: val,
           value: val,
-         
+
         }
       })
       setCheckboxRegion(checkboxData)
@@ -160,7 +170,7 @@ export default function Home() {
         {type !== "scatter" &&
           <>
             <p>請選擇複數個縣市</p>
-            <MultiCheckbox dataArr={checkboxRegion} handleCheckbox={handelCheckboxMap} checkedData={checkboxDataMap}/>
+            <MultiCheckbox dataArr={checkboxRegion} handleCheckbox={handelCheckboxMap} checkedData={checkboxDataMap} />
           </>
         }
         {type === "bubble" && <BubbleGraph data={Array.from(checkboxDataMap)} />}

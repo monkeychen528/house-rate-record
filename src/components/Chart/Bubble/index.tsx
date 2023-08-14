@@ -28,10 +28,12 @@ const dealData = (arr: any[]) => {
 
         priceMap.forEach((value, key) => {
             const formatDate = stringDateToDate(key)
+            let radius = value.count / 10 > 20 ? 20 : value.count / 10
+            radius = value.count / 10 < 1 ? 1 : radius
             const obj = {
                 x: formatDate,
                 y: Math.floor(parseInt(value.price) * 1000) / 1000,
-                r: value.count / 10 > 20 ? 20 : value.count / 10
+                r: radius
             }
             data.push(obj)
         })
