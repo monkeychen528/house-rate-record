@@ -99,22 +99,31 @@ export default function Home() {
   //get data 
   useEffect(() => {
     (async () => {
-      
-      // const fetchData = await fetch('http://localhost:3050/getPrice')
-      const fetchData = await fetch(`${process.env.NEXT_PUBLIC_KV_REST_API_URL}/get/price`, {
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_KV_REST_API_TOKEN}`,
-        },
-      })
-      const data = await fetchData.json()
-      
-      const parseData = JSON.parse(data.result)
-      
-      const rateData = await fetch(process.env.NEXT_PUBLIC_EDGE_CONFIG)
-      // const rateData = await fetch('http://localhost:3050/allRate')
-      const rate = await rateData.json()
+      let fetchData, data, parseData, rateData
+      if (process.env.NODE_ENV === "development") {
+        fetchData = await fetch('http://localhost:3050/getPrice')
+        data = await fetchData.json()
+        parseData = data
+      } else {
+        fetchData = await fetch(`${process.env.NEXT_PUBLIC_KV_REST_API_URL}/get/price`, {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_KV_REST_API_TOKEN}`,
+          },
+        })
+        data = await fetchData.json()
+        parseData = JSON.parse(data.result)
+      }
+
+      if (process.env.NODE_ENV === "development") {
+        rateData = await fetch('http://localhost:3050/allRate')
+        const rate = await rateData.json()
+        setRate(rate.items.data)
+      }else{
+        rateData = await fetch(process.env.NEXT_PUBLIC_EDGE_CONFIG)
+        const rate = await rateData.json()
+        setRate(rate.data)
+      }
       setAllPriceData(parseData.data)
-      setRate(rate.items.data)
     })()
   }, [])
   // filter region

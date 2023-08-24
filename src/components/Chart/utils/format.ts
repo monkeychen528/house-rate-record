@@ -18,6 +18,6 @@ export const formatData = (regionArr: IAllPriceData[]): Map<string, IAllPriceDat
 export const stringDateToDate = (strDate:string) => {
     const year = parseInt(strDate.slice(0, 3)) + 1911
     const month = strDate.slice(-2)
-    const formatDate = new Date(year, parseInt(month));
+    const formatDate = new Date(year, parseInt(month)-1);
     return formatDate
 }
