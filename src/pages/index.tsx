@@ -105,9 +105,9 @@ export default function Home() {
         data = await fetchData.json()
         parseData = data
       } else {
-        fetchData = await fetch(`${process.env.NEXT_PUBLIC_KV_REST_API_URL}/get/price`, {
+        fetchData = await fetch(`${process.env.NEXT_PUBLIC_KV_REST_API_URL}/json.get/price`, {
           headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_KV_REST_API_TOKEN}`,
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_KV_REST_API_READ_ONLY_TOKEN}`,
           },
         })
         data = await fetchData.json()
